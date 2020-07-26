@@ -6,7 +6,7 @@ const {ObjectID}=require('mongodb');
 
 var app=express();
 
-
+const port=process.env.PORT || 3000;
 app.use(bodyParser.json());
 app.post('/todos',(req, res)=>{
     //console.log(req.body);
@@ -50,10 +50,29 @@ app.get('/todos/:id',(req,res)=>{
         }).catch((e)=>console.log(e));
     }
     //res.send(req.params);
-})
+});
 
-app.listen(3000,()=>{
-    console.log('on port 3000');
+app.delete('/todos/:id',(req,res)=>{
+    var id=req.params.id;
+    if(!ObjectID.isValid(id))
+    {
+        return res.status(404).send();
+    }
+    else{
+        Todo.findByIdAndRemove(id).then((todo)=>{
+            if(!todo)
+            {
+              return res.status(404).send();
+                        }
+                        //else{
+                            res.status(200).send();
+            res.send({todo});
+        }).catch((e)=>{res.status(400).send();console.log(e);});
+    }
+});
+
+app.listen(port,()=>{
+    console.log(`on port ${port}`);
 });
 
 /*var newTodo2=new Todo({
